@@ -35,7 +35,6 @@ def isBarrier(board, coord):
         return True
     return False
 
-# check these two
 def showFinalPath(current):
     while current is not None:
         grid[current.position[0]][current.position[1]] = 3
@@ -47,7 +46,6 @@ def showFinalPath(current):
 
 def updateBoard(grid, visited):
     for node in visited:
-        # position = board[node.position[0]][node.position[1]]
         pygame.draw.rect(Screen, YELLOW, [(MARGIN+WIDTH) * node.position[1] + MARGIN, (MARGIN + HEIGHT) * node.position[0] + MARGIN, WIDTH, HEIGHT])
     pygame.display.update()
 
@@ -91,8 +89,8 @@ def a_star(board):
 
         for move in moves:
             node_position = (current_node.position[0] + move[0], current_node.position[1] + move[1])
-
-            if (not isValid(node_position)) and (isBarrier(board, node_position)):
+            
+            if (not isValid(node_position)) or (isBarrier(board, node_position)):
                 continue
 
             new_node = Node(current_node, node_position)
@@ -129,6 +127,8 @@ while run:
             if pos[0] > 10 and pos[0] < 110 and pos[1] > 460 and pos[1] < 495:
                 a_star(grid)
                 show_board()
+            elif pos[0] < 5 or pos[0] > 445 or pos[1] < 5 or pos[1] > 450:
+                continue
             else:
                 column = pos[0] // (WIDTH + MARGIN)
                 row = pos[1] // (HEIGHT + MARGIN)
