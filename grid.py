@@ -9,6 +9,7 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+GREY = (128, 128, 128)
 
 # size of blocks
 WIDTH = 10
@@ -16,8 +17,9 @@ HEIGHT = 10
 BLOCK_NUM = 30
 MARGIN = 5
 
+# set up grid
 grid = [[0 for x in range(BLOCK_NUM)] for y in range(BLOCK_NUM)]
-red_coords = [[2, 2], [BLOCK_NUM-3, BLOCK_NUM-3]] # here just to save time of searching for start and end
+red_coords = [[2, 2], [BLOCK_NUM-3, BLOCK_NUM-3]]
 grid[red_coords[0][0]][red_coords[0][1]] = 2
 grid[red_coords[1][0]][red_coords[1][1]] = 2
 
@@ -25,6 +27,7 @@ pygame.init()
 WINDOW_SIZE = [450, 500]
 Screen = pygame.display.set_mode(WINDOW_SIZE)
 
+# helper functions for a*
 def isValid(coord):
     if coord[0] > 0 and coord[0] < BLOCK_NUM and coord[1] > 0 and coord[1] < BLOCK_NUM:
         return True
@@ -50,7 +53,7 @@ def updateBoard(grid, visited):
     pygame.display.update()
 
 def a_star(board):
-    cost = 1
+    cost = 5
 
     start_node = Node(None, red_coords[0])
     start_node.g = start_node.h = start_node.f = 0
@@ -70,10 +73,10 @@ def a_star(board):
                 current_node = node
                 current_index = index
 
-        # Pop current off open list, add to closed list
         domain.pop(current_index)
         visited.append(current_node)
-        updateBoard(board, visited)
+        updateBoard(board, visited) # show visited so far
+
         if current_node == end_node:
             showFinalPath(current_node)
             return
@@ -105,10 +108,12 @@ def a_star(board):
             child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2)
             child.f = child.g + child.h
 
-            for open_node in domain:
-                if child == open_node and child.g > open_node.g:
+            if child in domain:
+                if child.g > current_node.g:
                     continue
-            domain.append(child)
+            else:
+                domain.append(child)
+
 
 
 def show_board():
@@ -147,11 +152,14 @@ while run:
             for column in range(BLOCK_NUM):
                 color = WHITE
                 if grid[row][column] == 1:
-                    color = GREEN
+                    color = GREY
                 elif grid[row][column] == 2:
                     color = RED
                 elif grid[row][column] == 3:
-                    color = BLUE
+                    if list((row, column)) == red_coords[0] or list((row, column)) == red_coords[1]:
+                        color = RED
+                    else:
+                        color = GREEN
                 pygame.draw.rect(Screen, color, [(MARGIN+WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN, WIDTH, HEIGHT])
         pygame.draw.rect(Screen, (220, 220, 220), [10, 460, 100, 30])
         font = pygame.font.SysFont(None, 20)
